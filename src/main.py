@@ -1,6 +1,10 @@
-import requests 
+import requests
+import logging
 from tinydb import TinyDB
 from datetime import datetime
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 db = TinyDB('db.json')
 
@@ -39,8 +43,16 @@ def calculate_kpis(price_data):
 
     Returns:
         dict: Um dicionário com price_usd, price_real e timestamp.
-              Retorna um dicionário vazio em caso de erro de chave (KeyError).
+              Retorna None em caso de dados inválidos ou erro.
     """
+    if not price_data:
+        logging.error("Erro: price_data está vazio.")
+        return None
+
+    if 'data' not in price_data or 'amount' not in price_data.get('data', {}):
+        logging.error(f"Erro: Estrutura de dados inválida em price_data: {price_data}")
+        return None
+
     try:
         price_usd = float(price_data['data']['amount'])
         price_real = price_usd * 5.5  # Cotação fixa para exemplo
@@ -49,5 +61,6 @@ def calculate_kpis(price_data):
             'price_real': price_real,
             'timestamp': datetime.now().isoformat()
         }
-    except KeyError:
-        return {}
+    except ValueError:
+        logging.error(f"Erro: 'amount' não é um número válido: {price_data['data']['amount']}")
+        return None
