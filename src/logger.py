@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 from src.config import LOG_LEVEL
@@ -12,8 +13,13 @@ formatter = logging.Formatter(
     "[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
 
+# Garante que o diretório de logs exista
+log_dir = "logs"
+os.makedirs(log_dir, exist_ok=True)
+log_file_path = os.path.join(log_dir, "app.log")
+
 # Criar um handler para o arquivo
-file_handler = logging.FileHandler("app.log")
+file_handler = logging.FileHandler(log_file_path)
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 

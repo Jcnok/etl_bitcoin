@@ -51,6 +51,10 @@ etl_bitcoin/
 ├── .github/
 │   └── workflows/
 │       └── python-ci.yml
+├── db/
+│   └── .gitkeep            # Banco de dados e arquivos exportados
+├── logs/
+│   └── .gitkeep            # Arquivos de log da aplicação
 ├── src/
 │   └── # Lógica principal do ETL
 ├── tests/
