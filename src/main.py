@@ -1,4 +1,5 @@
 import argparse
+import os
 from datetime import datetime
 
 import requests
@@ -186,12 +187,18 @@ def main() -> None:
     elif args.command == "stats":
         cli.show_stats()
     elif args.command == "export":
+        # Garante que o diretório de saída exista
+        output_dir = "db"
+        os.makedirs(output_dir, exist_ok=True)
+
         if args.format == "csv":
             filename = args.output or "prices.csv"
-            cli.export_to_csv(filename)
+            output_path = os.path.join(output_dir, os.path.basename(filename))
+            cli.export_to_csv(output_path)
         elif args.format == "json":
             filename = args.output or "prices.json"
-            cli.export_to_json(filename)
+            output_path = os.path.join(output_dir, os.path.basename(filename))
+            cli.export_to_json(output_path)
 
 
 if __name__ == "__main__":

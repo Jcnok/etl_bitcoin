@@ -26,7 +26,7 @@ EXCHANGE_RATE_API_URL = os.getenv(
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 # Configurações do Banco de Dados
-DB_PATH = os.getenv("DB_PATH", "db.json")
+DB_PATH = os.getenv("DB_PATH", "db/db.json")
 
 # Configurações de Requisição
 try:
