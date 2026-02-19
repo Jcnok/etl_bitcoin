@@ -1,122 +1,61 @@
-# Template de Projeto Python para Produção
+# 📈 ETL de Dados de Bitcoin
 
-[![Versão do Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://python.org/downloads/release/python-3120/)
-[![Licença](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Último Commit](https://img.shields.io/github/last-commit/seu-usuario/seu-repositorio)](https://github.com/seu-usuario/seu-repositorio/commits/main)
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)](.python-version)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/seu-usuario/etl_bitcoin.svg)](https://github.com/seu-usuario/etl_bitcoin/commits/main)
+[![CI](https://github.com/seu-usuario/etl_bitcoin/actions/workflows/python-ci.yml/badge.svg)](https://github.com/seu-usuario/etl_bitcoin/actions/workflows/python-ci.yml)
 
-> **Nota:** Atualize os badges com seu nome de usuário e repositório do GitHub.
+> **Nota:** Lembre-se de atualizar os badges com seu usuário e nome de repositório do GitHub.
 
-Este repositório serve como um template robusto e *production-ready* para projetos em Python. Ele foi projetado para acelerar o desenvolvimento inicial, garantindo as melhores práticas de qualidade de código, automação e integração contínua desde o primeiro commit.
+Este repositório é um template **production-ready** para a construção de um pipeline de ETL (Extração, Transformação e Carga) para dados de Bitcoin.
 
-## Por que isto importa? (Para Recrutadores e Gestores)
+O principal valor de negócio é **acelerar o desenvolvimento**, fornecendo uma base sólida com automação de qualidade (testes e linting) e integração contínua (CI) já configuradas. Isso permite que a equipe de desenvolvimento foque na lógica de negócio e na entrega de valor, em vez de gastar tempo com a configuração do ambiente.
 
-Em um ambiente de desenvolvimento ágil, a velocidade e a qualidade são cruciais. Este template demonstra a aplicação de práticas de engenharia de software modernas para construir sistemas confiáveis e escaláveis.
+## Fluxo de Dados
 
-- **Eficiência e Padronização**: Reduz o tempo de setup de novos projetos e garante que toda a equipe siga os mesmos padrões de código e qualidade.
-- **Redução de Riscos**: A automação de testes e linting via CI/CD captura bugs e inconsistências antes que cheguem à produção.
-- **Cultura de Qualidade**: Demonstra um compromisso com a excelência técnica, utilizando ferramentas padrão da indústria para automação de formatação, análise estática e testes.
-
-Utilizar uma estrutura como esta é um indicador de profissionalismo e maturidade técnica, essencial para o sucesso de projetos de software.
-
-## Problema Resolvido
-
-Este template soluciona o desafio comum de iniciar projetos Python do zero, eliminando a sobrecarga de configuração de ferramentas de desenvolvimento, CI/CD e padrões de qualidade. Ele fornece uma base sólida para que os desenvolvedores possam focar na lógica de negócio desde o início.
-
-## Arquitetura e Fluxo de Trabalho de Desenvolvimento
-
-O fluxo de trabalho foi projetado para garantir a qualidade do código em cada etapa, desde o desenvolvimento local até a integração contínua.
+O diagrama abaixo ilustra a arquitetura de alto nível pretendida para a aplicação.
 
 ```mermaid
 graph TD
-    A[Desenvolvedor escreve código] --> B{git commit};
-    B --> C[Hooks de pre-commit (Lint & Format)];
-    C -->|Sucesso| D{git push};
-    C -->|Falha| A;
-    D --> E[Trigger do GitHub Actions];
-    E --> F[Instala Dependências];
-    F --> G[Executa Linter & Formatter];
-    G --> H[Executa Testes];
-    H -->|Todos Passam| I[Pronto para Merge];
-    H -->|Falha| J[Correção Necessária];
-    J --> A;
+    A[API Externa de Bitcoin] --> B[Processamento e Transformação];
+    B --> C[Armazenamento de Dados];
 ```
 
 ## Stack Tecnológica
 
-| Ferramenta / Biblioteca | Propósito |
+| Ferramenta | Propósito |
 | :--- | :--- |
-| **Python 3.12** | Linguagem de programação principal. |
-| **Poetry** | Gerenciamento de dependências e ambientes virtuais. |
-| **pre-commit** | Framework para gerenciamento de hooks de Git. |
-| **isort & black** | Ferramentas para formatação de código automática. |
-| **flake8** | Linter para garantir a qualidade e o estilo do código. |
-| **pytest** | Framework para execução de testes automatizados. |
-| **GitHub Actions** | Plataforma de Integração e Entrega Contínua (CI/CD). |
+| **Python 3.12** | Linguagem principal para o desenvolvimento do ETL. |
+| **Poetry** | Gerenciamento de dependências e ambiente virtual. |
+| **requests** | Extração de dados de APIs HTTP. |
+| **pytest** | Framework para testes automatizados. |
+| **GitHub Actions**| Orquestração do pipeline de Integração Contínua (CI). |
 
 ## Início Rápido (Quick Start)
 
-Siga os passos abaixo para configurar o ambiente de desenvolvimento.
-
-### 1. Clone o repositório
-
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
-```
+# 1. Clone o repositório e entre na pasta
+git clone https://github.com/seu-usuario/etl_bitcoin.git && cd etl_bitcoin
 
-### 2. Instale as dependências
-
-Certifique-se de ter o [Poetry](https://python-poetry.org/docs/#installation) instalado.
-
-```bash
+# 2. Instale as dependências
 poetry install
-```
 
-### 3. Ative o ambiente virtual
-
-```bash
-poetry shell
-```
-
-### 4. Configure os hooks de pre-commit
-
-Este passo instala os hooks que serão executados a cada commit.
-
-```bash
-pre-commit install
-```
-
-### 5. Execute as verificações manualmente
-
-Você pode rodar as mesmas verificações do CI localmente.
-
-```bash
-# Rodar formatação e linting
-poetry run task format
-
-# Rodar os testes
+# 3. Execute os testes para validar o ambiente
 poetry run pytest
 ```
 
-## Estrutura de Diretórios
-
-A estrutura do projeto segue as convenções padrão da comunidade Python.
+## Estrutura do Projeto
 
 ```
-.
+etl_bitcoin/
 ├── .github/
 │   └── workflows/
-│       └── python-ci.yml   # Definição do pipeline de CI
+│       └── python-ci.yml
 ├── src/
-│   └── ...                 # Código fonte da aplicação
+│   └── # Lógica principal do ETL
 ├── tests/
-│   └── test_example.py     # Testes automatizados
-├── .flake8                 # Configuração do linter flake8
-├── .gitignore
-├── .pre-commit-config.yaml # Configuração dos hooks de pre-commit
-├── .python-version         # Versão do Python definida para o projeto
-├── LICENSE
-├── README.md               # Esta documentação
-├── poetry.lock             # Dependências travadas para builds reprodutíveis
-└── pyproject.toml          # Arquivo de configuração do projeto e dependências
+│   └── test_example.py
+├── .pre-commit-config.yaml
+├── pyproject.toml
+└── README.md
 ```
