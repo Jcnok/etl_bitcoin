@@ -1,10 +1,10 @@
-import sys
+import argparse
 from datetime import datetime
 
 import requests
 from tinydb import TinyDB
 
-from src import config
+from src import cli, config
 from src.logger import logger
 
 db = TinyDB(config.DB_PATH)
@@ -131,21 +131,61 @@ def run_etl_pipeline() -> None:
 
 def main() -> None:
     """
-    Função principal que controla a execução.
-    --schedule: Roda o job continuamente no intervalo configurado.
-    --once (ou sem argumento): Roda o job apenas uma vez.
+    Função principal que controla a CLI.
     """
-    # Import local para evitar dependência circular
-    from src import scheduler
+    parser = argparse.ArgumentParser(
+        description="ETL de Preços de Bitcoin com agendamento e análise."
+    )
+    subparsers = parser.add_subparsers(
+        dest="command", help="Comandos disponíveis", required=True
+    )
 
-    args = sys.argv[1:]
-    if "--schedule" in args:
-        scheduler.start()
-    elif "--once" in args or not args:
+    # Comando 'fetch'
+    subparsers.add_parser(
+        "fetch", help="Busca o preço mais recente e salva no banco de dados."
+    )
+
+    # Comando 'schedule'
+    subparsers.add_parser(
+        "schedule", help="Executa o ETL continuamente em intervalos agendados."
+    )
+
+    # Comando 'history'
+    subparsers.add_parser("history", help="Mostra os últimos 10 registros de preço.")
+
+    # Comando 'stats'
+    subparsers.add_parser(
+        "stats", help="Exibe estatísticas (mín, máx, média) dos preços registrados."
+    )
+
+    # Comando 'export'
+    export_parser = subparsers.add_parser("export", help="Exporta os dados de preço.")
+    export_parser.add_argument(
+        "--csv", action="store_true", help="Exporta os dados para um arquivo CSV."
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "fetch":
         run_etl_pipeline()
-    else:
-        logger.error(f"Argumento inválido: {args}. Use --schedule ou --once.")
-        print("Argumento inválido. Use --schedule ou --once.")
+    elif args.command == "schedule":
+        # Import local para evitar dependência circular
+        from src import scheduler
+
+        scheduler.start()
+    elif args.command == "history":
+        cli.show_history()
+    elif args.command == "stats":
+        cli.show_stats()
+    elif args.command == "export":
+        if args.csv:
+            cli.export_to_csv()
+        else:
+            print(
+                f"{cli.Colors.RED}Erro: Formato de exportação não especificado.{cli.Colors.ENDC}"
+            )
+            print("Use --csv para exportar para CSV.")
+            parser.print_help()
 
 
 if __name__ == "__main__":
