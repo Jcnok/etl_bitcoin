@@ -1,5 +1,7 @@
 import csv
+from datetime import datetime, timedelta
 
+from tabulate import tabulate
 from tinydb import TinyDB
 
 from src import config
@@ -18,48 +20,107 @@ class Colors:
 db = TinyDB(config.DB_PATH)
 
 
-def show_history() -> None:
-    """Mostra os últimos 10 registros de preço do banco de dados."""
-    logger.info("Executando comando 'history'.")
-    print(f"{Colors.BLUE}--- Últimos 10 Registros de Preço ---{Colors.ENDC}")
+def get_history(n: int = 10) -> list[dict]:
+    """Busca os últimos N registros de preço do banco de dados."""
     all_records = sorted(db.all(), key=lambda x: x["timestamp"], reverse=True)
-    last_10 = all_records[:10]
+    return all_records[:n]
 
-    if not last_10:
+
+def get_statistics() -> dict | None:
+    """Calcula estatísticas dos preços registrados nas últimas 24 horas."""
+    now = datetime.now()
+    twenty_four_hours_ago = now - timedelta(hours=24)
+
+    all_records = db.all()
+    recent_records = [
+        rec
+        for rec in all_records
+        if datetime.fromisoformat(rec["timestamp"]) >= twenty_four_hours_ago
+    ]
+
+    if len(recent_records) < 2:
+        return None
+
+    prices_usd = [rec["price_usd"] for rec in recent_records]
+
+    # Ordena por timestamp para calcular a variação corretamente
+    recent_records.sort(key=lambda x: x["timestamp"])
+
+    first_price = recent_records[0]["price_usd"]
+    last_price = recent_records[-1]["price_usd"]
+
+    variation = (
+        ((last_price - first_price) / first_price) * 100 if first_price != 0 else 0
+    )
+
+    return {
+        "records_count": len(prices_usd),
+        "avg_price": sum(prices_usd) / len(prices_usd),
+        "min_price": min(prices_usd),
+        "max_price": max(prices_usd),
+        "variation_24h": variation,
+    }
+
+
+def show_history() -> None:
+    """Mostra os últimos 10 registros de preço do banco de dados em uma tabela."""
+    logger.info("Executando comando 'history'.")
+    history_data = get_history(10)
+
+    if not history_data:
         print(
             f"{Colors.YELLOW}Nenhum registro encontrado no banco de dados.{Colors.ENDC}"
         )
         return
 
-    for record in reversed(last_10):
-        print(
-            f"[{record['timestamp']}] USD: ${record['price_usd']:.2f} | "
-            f"BRL: R${record['price_real']:.2f}"
-        )
+    table_data = [
+        [
+            record["timestamp"],
+            f"${record['price_usd']:,.2f}",
+            f"R${record['price_real']:,.2f}",
+        ]
+        for record in history_data
+    ]
+    headers = ["Timestamp", "USD", "BRL"]
+    print(
+        f"\n{Colors.BLUE}╔{'═' * 40}╗\n"
+        f"║{'Bitcoin Price History':^40}║\n"
+        f"╚{'═' * 40}╝"
+        f"{Colors.ENDC}"
+    )
+    print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
 
 
 def show_stats() -> None:
-    """Calcula e exibe estatísticas sobre os preços armazenados."""
+    """Calcula e exibe estatísticas sobre os preços das últimas 24h."""
     logger.info("Executando comando 'stats'.")
-    print(f"{Colors.BLUE}--- Estatísticas de Preço (USD) ---{Colors.ENDC}")
-    all_records = db.all()
+    stats = get_statistics()
 
-    if not all_records:
+    if not stats:
         print(
-            f"{Colors.YELLOW}Nenhum registro para calcular estatísticas.{Colors.ENDC}"
+            f"{Colors.YELLOW}Nenhum registro nas últimas 24 horas para calcular estatísticas.{Colors.ENDC}"
         )
         return
 
-    prices_usd = [rec["price_usd"] for rec in all_records]
+    variation_str = f"{stats['variation_24h']:.2f}%"
+    color = Colors.GREEN if stats["variation_24h"] >= 0 else Colors.RED
+    colored_variation = f"{color}{variation_str}{Colors.ENDC}"
 
-    avg_price = sum(prices_usd) / len(prices_usd)
-    min_price = min(prices_usd)
-    max_price = max(prices_usd)
+    table_data = [
+        ["Registros (24h)", stats["records_count"]],
+        ["Preço Médio (USD)", f"${stats['avg_price']:,.2f}"],
+        ["Preço Mínimo (USD)", f"${stats['min_price']:,.2f}"],
+        ["Preço Máximo (USD)", f"${stats['max_price']:,.2f}"],
+        ["Variação (24h)", colored_variation],
+    ]
 
-    print(f"Registros totais: {len(prices_usd)}")
-    print(f"Preço Médio: {Colors.GREEN}${avg_price:.2f}{Colors.ENDC}")
-    print(f"Preço Mínimo: {Colors.YELLOW}${min_price:.2f}{Colors.ENDC}")
-    print(f"Preço Máximo: {Colors.RED}${max_price:.2f}{Colors.ENDC}")
+    headers = [f"{Colors.BLUE}Métrica{Colors.ENDC}", f"{Colors.BLUE}Valor{Colors.ENDC}"]
+    print(
+        f"\n{Colors.BLUE}╔{'═' * 40}╗\n"
+        f"║{'Estatísticas (Últimas 24h)':^40}║\n"
+        f"╚{'═' * 40}╝{Colors.ENDC}"
+    )
+    print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
 
 
 def export_to_csv() -> None:
