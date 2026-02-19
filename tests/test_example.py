@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
-from src.main import calculate_kpis, get_price
+from src.main import calculate_kpis, get_price, get_usd_to_brl_rate
 
 
 # Fixture for valid price data to avoid repetition
