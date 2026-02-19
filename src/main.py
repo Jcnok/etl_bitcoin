@@ -8,6 +8,11 @@ from tinydb import TinyDB
 from src import cli, config
 from src.logger import logger
 
+# Garante que o diretório do banco de dados exista
+db_dir = os.path.dirname(config.DB_PATH)
+if db_dir:
+    os.makedirs(db_dir, exist_ok=True)
+
 db = TinyDB(config.DB_PATH)
 
 

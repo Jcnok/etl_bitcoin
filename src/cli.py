@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from datetime import datetime, timedelta
 
 from tabulate import tabulate
@@ -17,6 +18,11 @@ class Colors:
     YELLOW = "\033[93m"
     ENDC = "\033[0m"
 
+
+# Garante que o diretório do banco de dados exista
+db_dir = os.path.dirname(config.DB_PATH)
+if db_dir:
+    os.makedirs(db_dir, exist_ok=True)
 
 db = TinyDB(config.DB_PATH)
 
