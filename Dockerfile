@@ -27,7 +27,9 @@ ENV PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 
 # Create a non-root user and group for security
-RUN addgroup --system app && adduser --system --group app
+# We use a fixed UID/GID of 1000, which is the default for the first user on
+# many Linux systems. This helps prevent permission issues with mounted volumes.
+RUN addgroup --gid 1000 app && adduser --uid 1000 --gid 1000 --disabled-password --gecos "" app
 
 WORKDIR /app
 
