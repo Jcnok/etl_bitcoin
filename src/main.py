@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 from tinydb import TinyDB
 
-from logger import logger
+from src.logger import logger
 
 db = TinyDB("db.json")
 
