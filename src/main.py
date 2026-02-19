@@ -1,5 +1,5 @@
 import requests 
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 from datetime import datetime
 
 db = TinyDB('db.json')
