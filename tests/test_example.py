@@ -1,6 +1,8 @@
+from unittest.mock import Mock, patch
+
 import pytest
 import requests
-from unittest.mock import patch, Mock
+
 from src.main import calculate_kpis, get_price
 
 
@@ -13,13 +15,14 @@ def valid_price_data() -> dict:
 
 # --- Tests for calculate_kpis ---
 
+
 def test_calculate_kpis_success(valid_price_data: dict) -> None:
     """Tests if KPI calculation is correct with valid data."""
     kpis = calculate_kpis(valid_price_data)
     assert kpis is not None
-    assert kpis['price_usd'] == 50000.00
-    assert kpis['price_real'] == 50000.00 * 5.5
-    assert 'timestamp' in kpis
+    assert kpis["price_usd"] == 50000.00
+    assert kpis["price_real"] == 50000.00 * 5.5
+    assert "timestamp" in kpis
 
 
 def test_calculate_kpis_with_none_input() -> None:
@@ -47,7 +50,8 @@ def test_calculate_kpis_with_invalid_amount_value() -> None:
 
 # --- Tests for get_price (using mock) ---
 
-@patch('src.main.requests.get')
+
+@patch("src.main.requests.get")
 def test_get_price_success(mock_get: Mock) -> None:
     """Tests the price fetching function on a successful API call."""
     mock_response = Mock()
@@ -62,24 +66,26 @@ def test_get_price_success(mock_get: Mock) -> None:
     )
 
 
-@patch('src.main.requests.get')
+@patch("src.main.requests.get")
 def test_get_price_connection_error(mock_get: Mock) -> None:
     """Tests the price fetching function when a ConnectionError occurs."""
     mock_get.side_effect = requests.exceptions.ConnectionError("Connection failed")
     assert get_price() is None
 
 
-@patch('src.main.requests.get')
+@patch("src.main.requests.get")
 def test_get_price_timeout(mock_get: Mock) -> None:
     """Tests the price fetching function when a Timeout occurs."""
     mock_get.side_effect = requests.exceptions.Timeout("Request timed out")
     assert get_price() is None
 
 
-@patch('src.main.requests.get')
+@patch("src.main.requests.get")
 def test_get_price_http_error(mock_get: Mock) -> None:
     """Tests price fetching when the API returns an HTTP error (e.g., 404, 500)."""
     mock_response = Mock()
-    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404 Not Found")
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
+        "404 Not Found"
+    )
     mock_get.return_value = mock_response
     assert get_price() is None
