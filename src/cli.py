@@ -1,4 +1,5 @@
 import csv
+import json
 from datetime import datetime, timedelta
 
 from tabulate import tabulate
@@ -123,16 +124,15 @@ def show_stats() -> None:
     print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
 
 
-def export_to_csv() -> None:
+def export_to_csv(filename: str = "prices.csv") -> None:
     """Exporta todos os dados de preço para um arquivo CSV."""
-    logger.info("Executando comando 'export --csv'.")
+    logger.info(f"Executando exportação para CSV em '{filename}'.")
     all_records = db.all()
     if not all_records:
         logger.warning("Nenhum registro encontrado para exportar.")
         print(f"{Colors.YELLOW}Nenhum registro para exportar.{Colors.ENDC}")
         return
 
-    filename = "prices.csv"
     try:
         with open(filename, "w", newline="") as csvfile:
             fieldnames = ["timestamp", "price_usd", "price_real"]
@@ -149,7 +149,31 @@ def export_to_csv() -> None:
                 )
         logger.info(f"Dados exportados com sucesso para {filename}")
         print(
-            f"{Colors.GREEN}Dados exportados com sucesso para {filename}{Colors.ENDC}"
+            f"Exportando {len(all_records)} registros para {filename}... {Colors.GREEN}✅{Colors.ENDC}"
+        )
+    except IOError as e:
+        logger.error(f"Erro ao escrever no arquivo {filename}: {e}")
+        print(f"{Colors.RED}Erro ao escrever no arquivo {filename}: {e}{Colors.ENDC}")
+
+
+def export_to_json(filename: str = "prices.json") -> None:
+    """Exporta todos os dados de preço para um arquivo JSON."""
+    logger.info(f"Executando exportação para JSON em '{filename}'.")
+    all_records = db.all()
+    if not all_records:
+        logger.warning("Nenhum registro encontrado para exportar.")
+        print(f"{Colors.YELLOW}Nenhum registro para exportar.{Colors.ENDC}")
+        return
+
+    try:
+        # Ordena os registros por timestamp para consistência
+        sorted_records = sorted(all_records, key=lambda x: x["timestamp"])
+        with open(filename, "w") as jsonfile:
+            json.dump(sorted_records, jsonfile, indent=4)
+
+        logger.info(f"Dados exportados com sucesso para {filename}")
+        print(
+            f"Exportando {len(all_records)} registros para {filename}... {Colors.GREEN}✅{Colors.ENDC}"
         )
     except IOError as e:
         logger.error(f"Erro ao escrever no arquivo {filename}: {e}")

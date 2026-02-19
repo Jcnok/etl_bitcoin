@@ -161,7 +161,15 @@ def main() -> None:
     # Comando 'export'
     export_parser = subparsers.add_parser("export", help="Exporta os dados de preço.")
     export_parser.add_argument(
-        "--csv", action="store_true", help="Exporta os dados para um arquivo CSV."
+        "--format",
+        choices=["csv", "json"],
+        required=True,
+        help="O formato do arquivo de exportação (csv ou json).",
+    )
+    export_parser.add_argument(
+        "--output",
+        default=None,
+        help="O nome do arquivo de saída. Padrão: prices.csv ou prices.json.",
     )
 
     args = parser.parse_args()
@@ -178,14 +186,12 @@ def main() -> None:
     elif args.command == "stats":
         cli.show_stats()
     elif args.command == "export":
-        if args.csv:
-            cli.export_to_csv()
-        else:
-            print(
-                f"{cli.Colors.RED}Erro: Formato de exportação não especificado.{cli.Colors.ENDC}"
-            )
-            print("Use --csv para exportar para CSV.")
-            parser.print_help()
+        if args.format == "csv":
+            filename = args.output or "prices.csv"
+            cli.export_to_csv(filename)
+        elif args.format == "json":
+            filename = args.output or "prices.json"
+            cli.export_to_json(filename)
 
 
 if __name__ == "__main__":
