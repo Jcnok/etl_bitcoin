@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# Environment and configuration
+.env
+.env.example
+*.md
+
+# Python cache and dependencies
+__pycache__/
+*.pyc
+*.pyo
+.venv
+.pytest_cache/
+
+# Test files
+tests/
+
+# Local data and logs
+db/
+logs/
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# IDE and OS specific
+.idea/
+.vscode/
+*.swp
+*~
+*.bak
