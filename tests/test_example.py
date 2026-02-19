@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
+from src import config
 from src.main import calculate_kpis, get_price, get_usd_to_brl_rate
 
 
@@ -62,9 +63,8 @@ def test_get_price_success(mock_get: Mock) -> None:
 
     price = get_price()
     assert price == {"data": {"amount": "50000.00"}}
-    mock_get.assert_called_once_with(
-        "https://api.coinbase.com/v2/prices/spot?currency=USD", timeout=5
-    )
+    expected_url = f"{config.API_URL}?currency={config.CURRENCY}"
+    mock_get.assert_called_once_with(expected_url, timeout=config.REQUEST_TIMEOUT)
 
 
 @patch("src.main.requests.get")
@@ -105,6 +105,9 @@ def test_get_usd_to_brl_rate_success(mock_get: Mock) -> None:
 
     rate = get_usd_to_brl_rate()
     assert rate == 5.15
+    mock_get.assert_called_once_with(
+        config.EXCHANGE_RATE_API_URL, timeout=config.REQUEST_TIMEOUT
+    )
 
 
 @patch("src.main.requests.get")
