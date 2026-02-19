@@ -5,9 +5,29 @@ from datetime import datetime
 db = TinyDB('db.json')
 
 def get_price():
-  url = "https://api.coinbase.com/v2/prices/spot?currency=USD"
-  response = requests.get(url)
-  return response.json()
+    """
+    Busca o preço atual do Bitcoin em USD na API da Coinbase.
+
+    Define um timeout de 5 segundos e trata exceções de conexão,
+    timeout e outras exceções de requisição HTTP.
+
+    Returns:
+        dict: Os dados de preço em formato JSON, ou None em caso de erro.
+    """
+    try:
+        url = "https://api.coinbase.com/v2/prices/spot?currency=USD"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()  # Levanta um erro para respostas 4xx/5xx
+        return response.json()
+    except requests.exceptions.ConnectionError as e:
+        print(f"Erro de conexão ao buscar preço: {e}")
+        return None
+    except requests.exceptions.Timeout as e:
+        print(f"Timeout ao buscar preço: {e}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Erro na requisição ao buscar preço: {e}")
+        return None
 
 def calculate_kpis(price_data):
     """
