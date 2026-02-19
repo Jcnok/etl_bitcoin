@@ -35,3 +35,11 @@ try:
 except ValueError:
     print("Aviso: REQUEST_TIMEOUT não é um inteiro válido. Usando o padrão 5.")
     REQUEST_TIMEOUT = 5
+
+# Configurações do Agendador
+try:
+    # Converte o intervalo do agendador para inteiro
+    SCHEDULE_MINUTES = int(os.getenv("SCHEDULE_MINUTES", "5"))
+except ValueError:
+    print("Aviso: SCHEDULE_MINUTES não é um inteiro válido. Usando o padrão 5.")
+    SCHEDULE_MINUTES = 5

@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 
 import requests
@@ -110,8 +111,8 @@ def save_kpis_to_db(kpis: dict) -> None:
         logger.error("Nenhum KPI para salvar.")
 
 
-def main() -> None:
-    """Função principal para orquestrar o ETL."""
+def run_etl_pipeline() -> None:
+    """Função que executa o pipeline de ETL uma vez."""
     logger.info("--- Iniciando pipeline de ETL de Preço do Bitcoin ---")
 
     # Busca a cotação do dólar, com fallback para o valor configurado
@@ -126,6 +127,25 @@ def main() -> None:
     kpis = calculate_kpis(price_data, usd_to_brl_rate)
     save_kpis_to_db(kpis)
     logger.info("--- Pipeline de ETL finalizado ---")
+
+
+def main() -> None:
+    """
+    Função principal que controla a execução.
+    --schedule: Roda o job continuamente no intervalo configurado.
+    --once (ou sem argumento): Roda o job apenas uma vez.
+    """
+    # Import local para evitar dependência circular
+    from src import scheduler
+
+    args = sys.argv[1:]
+    if "--schedule" in args:
+        scheduler.start()
+    elif "--once" in args or not args:
+        run_etl_pipeline()
+    else:
+        logger.error(f"Argumento inválido: {args}. Use --schedule ou --once.")
+        print("Argumento inválido. Use --schedule ou --once.")
 
 
 if __name__ == "__main__":
