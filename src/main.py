@@ -1,9 +1,11 @@
+from datetime import datetime
+
 import requests
 from tinydb import TinyDB
-from datetime import datetime
+
 from logger import logger
 
-db = TinyDB('db.json')
+db = TinyDB("db.json")
 
 
 def get_price() -> dict | None:
@@ -52,23 +54,25 @@ def calculate_kpis(price_data: dict) -> dict | None:
         logger.error("Erro: price_data está vazio.")
         return None
 
-    if 'data' not in price_data or 'amount' not in price_data.get('data', {}):
+    if "data" not in price_data or "amount" not in price_data.get("data", {}):
         logger.error(f"Erro: Estrutura de dados inválida em price_data: {price_data}")
         return None
 
     try:
-        price_usd = float(price_data['data']['amount'])
+        price_usd = float(price_data["data"]["amount"])
         price_real = price_usd * 5.5  # Cotação fixa para exemplo
         logger.info(f"Convertendo ${price_usd} para R$ {price_real}")
         kpis = {
-            'price_usd': price_usd,
-            'price_real': price_real,
-            'timestamp': datetime.now().isoformat()
+            "price_usd": price_usd,
+            "price_real": price_real,
+            "timestamp": datetime.now().isoformat(),
         }
         logger.debug(f"KPIs calculados: {kpis}")
         return kpis
     except ValueError:
-        logger.error(f"Erro: 'amount' não é um número válido: {price_data['data']['amount']}")
+        logger.error(
+            f"Erro: 'amount' não é um número válido: {price_data['data']['amount']}"
+        )
         return None
 
 
