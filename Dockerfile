@@ -1,5 +1,5 @@
 # Stage 1: Build the virtual environment with Poetry
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 # Set environment variables to prevent interactive prompts and manage venv
 ENV POETRY_NO_INTERACTION=1 \
@@ -16,7 +16,7 @@ RUN pip install poetry
 COPY poetry.lock pyproject.toml ./
 
 # Install dependencies, excluding development ones
-RUN poetry install --no-dev --no-root
+RUN poetry install --only main --no-root
 
 # Stage 2: Create the final, lean production image
 FROM python:3.12-slim
