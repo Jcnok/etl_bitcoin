@@ -3,9 +3,10 @@ from datetime import datetime
 import requests
 from tinydb import TinyDB
 
+from src import config
 from src.logger import logger
 
-db = TinyDB("db.json")
+db = TinyDB(config.DB_PATH)
 
 
 def get_price() -> dict | None:
@@ -20,8 +21,8 @@ def get_price() -> dict | None:
     """
     logger.info("Iniciando busca de preço na API da Coinbase.")
     try:
-        url = "https://api.coinbase.com/v2/prices/spot?currency=USD"
-        response = requests.get(url, timeout=5)
+        url = f"{config.API_URL}?currency={config.CURRENCY}"
+        response = requests.get(url, timeout=config.REQUEST_TIMEOUT)
         response.raise_for_status()  # Levanta um erro para respostas 4xx/5xx
         price_data = response.json()
         logger.info(f"Preço obtido com sucesso: {price_data}")
@@ -60,7 +61,7 @@ def calculate_kpis(price_data: dict) -> dict | None:
 
     try:
         price_usd = float(price_data["data"]["amount"])
-        price_real = price_usd * 5.5  # Cotação fixa para exemplo
+        price_real = price_usd * config.USD_TO_BRL_RATE
         logger.info(f"Convertendo ${price_usd} para R$ {price_real}")
         kpis = {
             "price_usd": price_usd,
