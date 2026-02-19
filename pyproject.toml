@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ntt-data-engenharia-de-dados-com-python"
+name = "etl_bitcoin"
 version = "0.1.0"
 description = ""
 authors = ["Julio Okuda <julio.okuda@gmail.com>"]
@@ -8,6 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+requests = "^2.32.3"
+tinydb = "^4.8.2"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -35,7 +35,7 @@ graph TD
 
 ```bash
 # 1. Clone o repositório e entre na pasta
-git clone https://github.com/seu-usuario/etl_bitcoin.git && cd etl_bitcoin
+git clone https://github.com/jcnok/etl_bitcoin.git && cd etl_bitcoin
 
 # 2. Instale as dependências
 poetry install
