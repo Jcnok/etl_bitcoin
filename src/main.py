@@ -6,7 +6,7 @@ from logger import logger
 db = TinyDB('db.json')
 
 
-def get_price():
+def get_price() -> dict | None:
     """
     Busca o preço atual do Bitcoin em USD na API da Coinbase.
 
@@ -35,7 +35,7 @@ def get_price():
         return None
 
 
-def calculate_kpis(price_data):
+def calculate_kpis(price_data: dict) -> dict | None:
     """
     Calcula os KPIs (Key Performance Indicators) a partir dos dados de preço.
 
@@ -72,7 +72,7 @@ def calculate_kpis(price_data):
         return None
 
 
-def save_kpis_to_db(kpis):
+def save_kpis_to_db(kpis: dict) -> None:
     """Salva os KPIs no banco de dados TinyDB."""
     logger.info("Iniciando salvamento no banco de dados.")
     if kpis:
@@ -82,7 +82,7 @@ def save_kpis_to_db(kpis):
         logger.error("Nenhum KPI para salvar.")
 
 
-def main():
+def main() -> None:
     """Função principal para orquestrar o ETL."""
     logger.info("--- Iniciando pipeline de ETL de Preço do Bitcoin ---")
     price_data = get_price()
