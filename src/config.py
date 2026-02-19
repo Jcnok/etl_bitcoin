@@ -11,11 +11,16 @@ CURRENCY = os.getenv("CURRENCY", "USD")
 
 # Configurações de processamento de dados
 try:
-    # Converte a taxa de câmbio para float
-    USD_TO_BRL_RATE = float(os.getenv("USD_TO_BRL_RATE", "5.5"))
+    # Define uma cotação de fallback caso a API falhe
+    FALLBACK_USD_TO_BRL_RATE = float(os.getenv("FALLBACK_USD_TO_BRL_RATE", "5.5"))
 except ValueError:
-    print("Aviso: USD_TO_BRL_RATE não é um float válido. Usando o padrão 5.5.")
-    USD_TO_BRL_RATE = 5.5
+    print("Aviso: FALLBACK_USD_TO_BRL_RATE não é um float válido. Usando o padrão 5.5.")
+    FALLBACK_USD_TO_BRL_RATE = 5.5
+
+# URL da API de cotação de moeda
+EXCHANGE_RATE_API_URL = os.getenv(
+    "EXCHANGE_RATE_API_URL", "https://api.exchangerate-api.com/v4/latest/USD"
+)
 
 # Configurações de Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()

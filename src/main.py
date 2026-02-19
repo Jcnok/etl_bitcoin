@@ -38,13 +38,36 @@ def get_price() -> dict | None:
         return None
 
 
-def calculate_kpis(price_data: dict) -> dict | None:
+def get_usd_to_brl_rate() -> float | None:
+    """
+    Busca a cotação atual de USD para BRL de uma API externa.
+
+    Returns:
+        float: A cotação de USD para BRL, ou None em caso de erro.
+    """
+    logger.info("Iniciando busca da cotação USD->BRL.")
+    try:
+        response = requests.get(
+            config.EXCHANGE_RATE_API_URL, timeout=config.REQUEST_TIMEOUT
+        )
+        response.raise_for_status()
+        data = response.json()
+        rate = float(data["rates"]["BRL"])
+        logger.info(f"Cotação USD->BRL obtida com sucesso: {rate}")
+        return rate
+    except (requests.exceptions.RequestException, KeyError, ValueError) as e:
+        logger.error(f"Erro ao buscar cotação USD->BRL: {e}")
+        return None
+
+
+def calculate_kpis(price_data: dict, usd_to_brl_rate: float) -> dict | None:
     """
     Calcula os KPIs (Key Performance Indicators) a partir dos dados de preço.
 
     Args:
         price_data (dict): Dicionário contendo os dados de preço da API.
                            Ex: {'data': {'amount': '50000.00'}}
+        usd_to_brl_rate (float): A cotação atual de USD para BRL.
 
     Returns:
         dict: Um dicionário com price_usd, price_real e timestamp.
@@ -61,7 +84,7 @@ def calculate_kpis(price_data: dict) -> dict | None:
 
     try:
         price_usd = float(price_data["data"]["amount"])
-        price_real = price_usd * config.USD_TO_BRL_RATE
+        price_real = price_usd * usd_to_brl_rate
         logger.info(f"Convertendo ${price_usd} para R$ {price_real}")
         kpis = {
             "price_usd": price_usd,
@@ -90,8 +113,17 @@ def save_kpis_to_db(kpis: dict) -> None:
 def main() -> None:
     """Função principal para orquestrar o ETL."""
     logger.info("--- Iniciando pipeline de ETL de Preço do Bitcoin ---")
+
+    # Busca a cotação do dólar, com fallback para o valor configurado
+    usd_to_brl_rate = get_usd_to_brl_rate()
+    if not usd_to_brl_rate:
+        usd_to_brl_rate = config.FALLBACK_USD_TO_BRL_RATE
+        logger.warning(
+            f"Falha ao buscar cotação. Usando valor de fallback: {usd_to_brl_rate}"
+        )
+
     price_data = get_price()
-    kpis = calculate_kpis(price_data)
+    kpis = calculate_kpis(price_data, usd_to_brl_rate)
     save_kpis_to_db(kpis)
     logger.info("--- Pipeline de ETL finalizado ---")
 
