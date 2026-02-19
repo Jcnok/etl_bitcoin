@@ -1,7 +1,7 @@
 import requests
 from tinydb import TinyDB
 from datetime import datetime
-from src.logger import logger
+from logger import logger
 
 db = TinyDB('db.json')
 
