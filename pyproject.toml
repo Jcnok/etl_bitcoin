@@ -35,3 +35,6 @@ exclude = ".venv"
 # lib para automatizar tarefas
 [tool.taskipy.tasks]
 format = "isort .&&black .&&flake8" #verifica a formatação do código na sequência.
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
