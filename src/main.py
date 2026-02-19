@@ -10,6 +10,24 @@ def get_price():
   return response.json()
 
 def calculate_kpis(price_data):
-  price_usd = price_data['data']['amount']
-  price_real = float(price_usd)* 5.5
-  price_data['price_real']
+    """
+    Calcula os KPIs (Key Performance Indicators) a partir dos dados de preço.
+
+    Args:
+        price_data (dict): Dicionário contendo os dados de preço da API.
+                           Ex: {'data': {'amount': '50000.00'}}
+
+    Returns:
+        dict: Um dicionário com price_usd, price_real e timestamp.
+              Retorna um dicionário vazio em caso de erro de chave (KeyError).
+    """
+    try:
+        price_usd = float(price_data['data']['amount'])
+        price_real = price_usd * 5.5  # Cotação fixa para exemplo
+        return {
+            'price_usd': price_usd,
+            'price_real': price_real,
+            'timestamp': datetime.now().isoformat()
+        }
+    except KeyError:
+        return {}
